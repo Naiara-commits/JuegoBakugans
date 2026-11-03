@@ -49,6 +49,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* SprintAction;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float WalkSpeed = 500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float MaxRunSpeed = 800.0f;
+
+	void BeginRunning();
+	void StopRunning(); 
+
 public:
 
 	/** Constructor */
