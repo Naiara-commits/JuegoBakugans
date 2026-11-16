@@ -35,7 +35,7 @@ AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 5000.f;
 	GetCharacterMovement()->GravityScale = 1.5f;
-
+	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
