@@ -64,6 +64,7 @@ protected:
 
 	void BeginRunning();
 	void StopRunning(); 
+	void PerformGroundPound();
 
 public:
 
