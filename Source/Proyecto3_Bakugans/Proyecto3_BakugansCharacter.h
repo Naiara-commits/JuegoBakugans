@@ -52,8 +52,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SprintAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction* GroundPoundAction;
+	/* UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction* GroundPoundAction; */
 
 	void PerformGroundPound();
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -64,7 +64,7 @@ protected:
 
 	void BeginRunning();
 	void StopRunning(); 
-	void PerformGroundPound();
+	//void PerformGroundPound();
 
 public:
 
