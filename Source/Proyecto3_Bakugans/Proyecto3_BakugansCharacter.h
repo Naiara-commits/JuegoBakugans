@@ -49,9 +49,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* SprintAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction* GroundPoundAction;
+
+	void PerformGroundPound();
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float WalkSpeed = 500.0f;
 
