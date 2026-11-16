@@ -63,6 +63,10 @@ void AProyecto3_BakugansCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::BeginRunning);
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::StopRunning);
 		}
+		/* if (GroundPoundAction)
+		{
+    		EnhancedInputComponent->BindAction(GroundPoundAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::PerformGroundPound);
+		} */
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -155,3 +159,11 @@ void AProyecto3_BakugansCharacter::StopRunning()
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	}
 }
+/* void AProyecto3_BakugansCharacter::PerformGroundPound()
+{
+	if(GetCharacterMovement() && GetCharacterMovement()->IsFalling())
+	{
+		FVector SlamVelocity = FVector(0.f, 0.f, -2500.f);
+		LaunchCharacter(SlamVelocity, true, true);
+	}
+} */
