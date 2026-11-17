@@ -5,6 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "State.h"
+#include "Idle.h"
+#include "Die.h"
+#include "Hit.h"
+#include "Jump.h"
+#include "Land.h"
+#include "Running.h"
+#include "Walking.h"
 #include <vector>
 #include "StateMachine.generated.h"
 

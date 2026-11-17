@@ -10,8 +10,19 @@ UStateMachine::UStateMachine()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	states = std::vector<IState*> { 
+		NewObject<UIdle>(), // This will be the first
 
-	// ...
+		NewObject<UWalking>(),
+		NewObject<URunning>(),
+
+		NewObject<UHit>(),
+
+		NewObject<UJump>(),
+		NewObject<ULand>(),
+
+		NewObject<UDie>(),
+	};
 }
 
 
@@ -31,7 +42,7 @@ void UStateMachine::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	currentState->OnTick();
-	// ...
+	
 }
 
 template<class T>
