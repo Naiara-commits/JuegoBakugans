@@ -10,6 +10,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class UInteractionComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -49,12 +50,22 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	/** Interact Input Action */
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* InteractAction;
+
+	/** Finds what is in front and interacts with it */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInteractionComponent> InteractionComponent;
+
 public:
 
 	/** Constructor */
 	AProyecto3_BakugansCharacter();	
 
 protected:
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -66,6 +77,9 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	/** Capsule, facing and velocity, while game.Debug.Movement is on */
+	void DrawMovementDebug() const;
 
 public:
 
@@ -84,6 +98,10 @@ public:
 	/** Handles jump pressed inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
+
+	/** Handles interact inputs from either controls or UI interfaces */
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoInteract();
 
 public:
 
