@@ -19,8 +19,9 @@ UStateMachine::UStateMachine()
 void UStateMachine::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
+	currentState = states[0];
+	currentState->OnStart();
+	
 
 }
 
