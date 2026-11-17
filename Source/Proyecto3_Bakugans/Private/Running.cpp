@@ -10,4 +10,7 @@ void URunning::OnTick() {}
 
 void URunning::OnEnd() {}
 
-
+bool URunning::ShouldTransition()
+{
+	return false;
+}

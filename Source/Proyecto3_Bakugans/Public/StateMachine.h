@@ -23,7 +23,7 @@ class PROYECTO3_BAKUGANS_API UStateMachine : public UActorComponent
 private:
 	IState* currentState;
 	std::vector<IState*> states;
-
+	UActor* parentActor;
 public:	
 	// Sets default values for this component's properties
 	UStateMachine();
