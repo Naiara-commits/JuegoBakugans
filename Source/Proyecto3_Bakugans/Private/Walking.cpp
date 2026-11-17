@@ -9,4 +9,7 @@ void UWalking::OnTick() {}
 
 void UWalking::OnEnd() {}
 
-
+bool UWalking::ShouldTransition()
+{
+	return false;
+}

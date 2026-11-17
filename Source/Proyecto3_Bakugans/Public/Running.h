@@ -18,6 +18,7 @@ class PROYECTO3_BAKUGANS_API URunning : public UObject, public IState
 	virtual void OnStart() override;
 	virtual void OnTick() override;
 	virtual void OnEnd() override;
-	
+private:
+	bool ShouldTransition();
 	
 };

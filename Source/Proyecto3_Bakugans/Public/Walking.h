@@ -14,10 +14,14 @@ UCLASS()
 class PROYECTO3_BAKUGANS_API UWalking : public UObject, public IState
 {
 	GENERATED_BODY()
-	
+	const int TRANSITION_SPEED;
+	UPROPERTY(EditAnywhere)
+	int speed;
 	virtual void OnStart() override;
 	virtual void OnTick() override;
 	virtual void OnEnd() override;
 	
+private:
+	bool ShouldTransition();
 	
 };

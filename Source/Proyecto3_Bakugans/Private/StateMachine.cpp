@@ -23,6 +23,8 @@ UStateMachine::UStateMachine()
 
 		NewObject<UDie>(),
 	};
+	currentState = states[0];
+
 }
 
 
@@ -30,7 +32,6 @@ UStateMachine::UStateMachine()
 void UStateMachine::BeginPlay()
 {
 	Super::BeginPlay();
-	currentState = states[0];
 	currentState->OnStart();
 	
 
