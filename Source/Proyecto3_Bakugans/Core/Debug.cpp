@@ -7,6 +7,7 @@
 TAutoConsoleVariable<int32> CVarDebugAll(TEXT("game.Debug.All"), 0, TEXT("Turns on all debug."), ECVF_Cheat);
 TAutoConsoleVariable<int32> CVarDebugMovement(TEXT("game.Debug.Movement"), 0, TEXT("Capsule, facing, velocity and movement mode."), ECVF_Cheat);
 TAutoConsoleVariable<int32> CVarDebugInteraction(TEXT("game.Debug.Interaction"), 0, TEXT("Interact sweep, cooldown and pushes."), ECVF_Cheat);
+TAutoConsoleVariable<int32> CVarDebugCombat(TEXT("game.Debug.Combat"), 0, TEXT("Hearts of everyone with a health component."), ECVF_Cheat);
 
 namespace GameDebug
 {

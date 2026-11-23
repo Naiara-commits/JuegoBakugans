@@ -1,5 +1,6 @@
 #include "Combat/HealthComponent.h"
 
+#include "Core/Debug.h"
 #include "GameFramework/Actor.h"
 
 UHealthComponent::UHealthComponent()
@@ -11,8 +12,9 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Set here, not in the constructor, so a MaxHearts changed in a Blueprint is used
-	CurrentHearts = MaxHearts;
+	// Set here, not in the constructor, so a MaxHearts changed in a Blueprint is used.
+	// It also broadcasts, so widgets that bound early show the starting hearts
+	SetHearts(MaxHearts);
 
 	if (AActor* Owner = GetOwner())
 	{
@@ -28,12 +30,12 @@ void UHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 		return;
 	}
 
-	--CurrentHearts;
-	OnHeartsChanged.Broadcast(this, CurrentHearts, -1);
+	SetHearts(CurrentHearts - 1);
+	OnDamaged.Broadcast(this, DamageCauser);
 
 	if (IsDead())
 	{
-		OnDeath.Broadcast();
+		OnDeath.Broadcast(DamageCauser);
 	}
 }
 
@@ -43,13 +45,25 @@ void UHealthComponent::HealHearts(int32 Amount)
 	{
 		return;
 	}
+	SetHearts(FMath::Min(CurrentHearts + Amount, MaxHearts));
+}
 
-	const int32 Before = CurrentHearts;
-	CurrentHearts = FMath::Min(CurrentHearts + Amount, MaxHearts);
+void UHealthComponent::ResetHealth()
+{
+	SetHearts(MaxHearts);
+}
 
-	// Only notify if something actually changed (already full means no change)
-	if (CurrentHearts != Before)
+void UHealthComponent::SetHearts(int32 NewHearts)
+{
+	// Delta from the clamped value, so listeners get the real change
+	const int32 OldHearts = CurrentHearts;
+	CurrentHearts = FMath::Clamp(NewHearts, 0, MaxHearts);
+	const int32 Delta = CurrentHearts - OldHearts;
+	OnHeartsChanged.Broadcast(this, CurrentHearts, Delta);
+
+	if (GameDebug::IsOn(CVarDebugCombat))
 	{
-		OnHeartsChanged.Broadcast(this, CurrentHearts, CurrentHearts - Before);
+		GameDebug::Print(GetOwner()->GetFName(), FString::Printf(TEXT("%s: %d/%d corazones%s"),
+			*GetOwner()->GetName(), CurrentHearts, MaxHearts, IsDead() ? TEXT(" (muerto)") : TEXT("")), FColor::Red);
 	}
 }

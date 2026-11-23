@@ -8,6 +8,7 @@
 extern PROYECTO3_BAKUGANS_API TAutoConsoleVariable<int32> CVarDebugAll;
 extern PROYECTO3_BAKUGANS_API TAutoConsoleVariable<int32> CVarDebugMovement;
 extern PROYECTO3_BAKUGANS_API TAutoConsoleVariable<int32> CVarDebugInteraction;
+extern PROYECTO3_BAKUGANS_API TAutoConsoleVariable<int32> CVarDebugCombat;
 
 namespace GameDebug
 {
