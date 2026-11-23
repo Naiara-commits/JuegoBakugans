@@ -33,11 +33,12 @@ AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
-
+	GetCharacterMovement()->BrakingDecelerationFalling = 5000.f;
+	GetCharacterMovement()->GravityScale = 1.5f;
+	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -63,9 +64,17 @@ AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 
 void AProyecto3_BakugansCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
+		// Sprinting: run while held, walk again on release
+		if (SprintAction)
+		{
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::BeginRunning);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AProyecto3_BakugansCharacter::StopRunning);
+		}
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -181,4 +190,14 @@ void AProyecto3_BakugansCharacter::DrawMovementDebug() const
 	DrawDebugDirectionalArrow(World, Location, Location + Velocity * 0.25f, 20.f, FColor::Green);
 
 	GameDebug::Print("Movement", FString::Printf(TEXT("%.0f cm/s | %s"), Velocity.Size2D(), *GetCharacterMovement()->GetMovementName()), FColor::Green, 0.1f, 0.2f);
+}
+
+void AProyecto3_BakugansCharacter::BeginRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxRunSpeed;
+}
+
+void AProyecto3_BakugansCharacter::StopRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }

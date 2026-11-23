@@ -58,6 +58,24 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 
+	/** Sprint Input Action (hold to run) */
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* SprintAction;
+
+	/** Ground speed while walking */
+	UPROPERTY(EditAnywhere, Category="Movement", meta = (ClampMin = "0", Units = "cm/s"))
+	float WalkSpeed = 500.f;
+
+	/** Ground speed while the sprint button is held */
+	UPROPERTY(EditAnywhere, Category="Movement", meta = (ClampMin = "0", Units = "cm/s"))
+	float MaxRunSpeed = 800.f;
+
+	/** Switch to the running speed (sprint pressed) */
+	void BeginRunning();
+
+	/** Back to the walking speed (sprint released) */
+	void StopRunning();
+
 public:
 
 	/** Constructor */
