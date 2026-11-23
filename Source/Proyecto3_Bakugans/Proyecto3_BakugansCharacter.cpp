@@ -74,6 +74,10 @@ void AProyecto3_BakugansCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::BeginRunning);
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AProyecto3_BakugansCharacter::StopRunning);
 		}
+		else
+		{
+			UE_LOG(LogProyecto3_Bakugans, Warning, TEXT("'%s' has no SprintAction assigned"), *GetNameSafe(this));
+		}
 
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
@@ -189,15 +193,25 @@ void AProyecto3_BakugansCharacter::DrawMovementDebug() const
 	DrawDebugDirectionalArrow(World, Location, Location + GetActorForwardVector() * 100.f, 20.f, FColor::Blue);
 	DrawDebugDirectionalArrow(World, Location, Location + Velocity * 0.25f, 20.f, FColor::Green);
 
-	GameDebug::Print("Movement", FString::Printf(TEXT("%.0f cm/s | %s"), Velocity.Size2D(), *GetCharacterMovement()->GetMovementName()), FColor::Green, 0.1f, 0.2f);
+	GameDebug::Print("Movement", FString::Printf(TEXT("%.0f / %.0f cm/s | %s"), Velocity.Size2D(), GetCharacterMovement()->MaxWalkSpeed, *GetCharacterMovement()->GetMovementName()), FColor::Green, 0.1f, 0.2f);
 }
 
 void AProyecto3_BakugansCharacter::BeginRunning()
 {
 	GetCharacterMovement()->MaxWalkSpeed = MaxRunSpeed;
+
+	if (GameDebug::IsOn(CVarDebugMovement))
+	{
+		GameDebug::Print("Sprint", FString::Printf(TEXT("Sprint ON: max %.0f cm/s"), MaxRunSpeed), FColor::Yellow);
+	}
 }
 
 void AProyecto3_BakugansCharacter::StopRunning()
 {
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
+	if (GameDebug::IsOn(CVarDebugMovement))
+	{
+		GameDebug::Print("Sprint", FString::Printf(TEXT("Sprint OFF: max %.0f cm/s"), WalkSpeed), FColor::Yellow);
+	}
 }
