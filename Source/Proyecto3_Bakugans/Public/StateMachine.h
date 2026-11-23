@@ -6,6 +6,14 @@
 #include "Components/ActorComponent.h"
 #include "State.h"
 #include <vector>
+#include <map>
+#include "Idle.h"
+#include "Walking.h"
+#include "Running.h"
+#include "Die.h"
+#include "Hit.h"
+#include "Jump.h"
+#include "Land.h"
 #include "StateMachine.generated.h"
 
 
@@ -16,6 +24,7 @@ class PROYECTO3_BAKUGANS_API UStateMachine : public UActorComponent
 private:
 	IState* currentState;
 	std::vector<IState*> states;
+	std::map<FString, IState*> stateDict;
 
 public:	
 	// Sets default values for this component's properties
@@ -29,7 +38,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	template <class T = IState> void ChangeState();
+	UFUNCTION(BlueprintCallable, Category = "Custom State-Machine")
+	void ChangeState(FString state);
 	template <class T = IState> IState* FindState();
+	IState* FindState(FString state);
 	
 };
 
