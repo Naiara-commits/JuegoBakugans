@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UInteractionComponent;
+class UHealthComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -57,6 +58,10 @@ protected:
 	/** Finds what is in front and interacts with it */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInteractionComponent> InteractionComponent;
+
+	/** Hearts of the player; the HUD shows them */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UHealthComponent> HealthComponent;
 
 	/** Sprint Input Action (hold to run) */
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -128,5 +133,8 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	/** Returns the player's hearts (attacks reach them through ApplyDamage; this is for reading or reacting) **/
+	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 };
 

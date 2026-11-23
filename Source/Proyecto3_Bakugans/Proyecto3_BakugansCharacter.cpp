@@ -13,6 +13,7 @@
 #include "Proyecto3_Bakugans.h"
 #include "Core/Debug.h"
 #include "Player/InteractionComponent.h"
+#include "Combat/HealthComponent.h"
 #include "DrawDebugHelpers.h"
 
 AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
@@ -51,6 +52,7 @@ AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	// Physics objects only move when interacted with, not when we walk into them
 	GetCharacterMovement()->InitialPushForceFactor = 0.f;
