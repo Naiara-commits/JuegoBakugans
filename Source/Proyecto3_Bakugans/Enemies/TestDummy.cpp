@@ -5,7 +5,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/StaticMesh.h"
-#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 ATestDummy::ATestDummy()
@@ -44,25 +43,8 @@ void ATestDummy::BeginPlay()
 	Health->OnDeath.AddUniqueDynamic(this, &ATestDummy::HandleDeath);
 }
 
-void ATestDummy::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	GetWorldTimerManager().ClearTimer(RespawnTimer);
-	Super::EndPlay(EndPlayReason);
-}
-
 void ATestDummy::HandleDeath(AActor* Killer)
 {
-	// Gone: invisible and no collision until it respawns
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
-	HeartsWidget->SetVisibility(false);  // screen-space widgets don't always follow the actor's hidden flag
-	GetWorldTimerManager().SetTimer(RespawnTimer, this, &ATestDummy::Respawn, FMath::Max(RespawnTime, KINDA_SMALL_NUMBER), false);
-}
-
-void ATestDummy::Respawn()
-{
-	Health->ResetHealth();
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-	HeartsWidget->SetVisibility(true);
+	// Out of hearts: the dummy is gone for good
+	Destroy();
 }

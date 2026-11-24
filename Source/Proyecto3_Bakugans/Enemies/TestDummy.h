@@ -10,8 +10,7 @@ class UWidgetComponent;
 
 /**
  * Test enemy: a cube with health and its hearts floating above it.
- * When it dies it hides, and after RespawnTime it comes back with full hearts,
- * so damage can be tested again and again.
+ * When it runs out of hearts it disappears.
  */
 UCLASS()
 class PROYECTO3_BAKUGANS_API ATestDummy : public AActor
@@ -28,9 +27,6 @@ protected:
 	/** Connects the floating hearts to the health and listens for death */
 	virtual void BeginPlay() override;
 
-	/** Clears the respawn timer */
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 	/** Body of the dummy (an engine cube by default) */
 	UPROPERTY(VisibleAnywhere, Category = "Dummy")
 	TObjectPtr<UStaticMeshComponent> Mesh;
@@ -43,17 +39,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Dummy")
 	TObjectPtr<UWidgetComponent> HeartsWidget;
 
-	/** Seconds hidden after dying before it comes back */
-	UPROPERTY(EditAnywhere, Category = "Dummy", meta = (ClampMin = "0", Units = "s"))
-	float RespawnTime = 2.f;
-
 private:
-	/** Bound to Health->OnDeath: hide and start the respawn timer */
+	/** Bound to Health->OnDeath: removes the dummy */
 	UFUNCTION()
 	void HandleDeath(AActor* Killer);
-
-	/** Show again with full hearts */
-	void Respawn();
-
-	FTimerHandle RespawnTimer;
 };
