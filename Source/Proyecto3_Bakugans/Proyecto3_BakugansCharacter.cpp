@@ -11,6 +11,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Proyecto3_Bakugans.h"
+#include "Core/Debug.h"
+#include "Player/InteractionComponent.h"
+#include "Combat/HealthComponent.h"
+#include "DrawDebugHelpers.h"
 
 AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 {
@@ -30,11 +34,12 @@ AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
-
+	GetCharacterMovement()->BrakingDecelerationFalling = 5000.f;
+	GetCharacterMovement()->GravityScale = 1.5f;
+	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -46,15 +51,36 @@ AProyecto3_BakugansCharacter::AProyecto3_BakugansCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	// Physics objects only move when interacted with, not when we walk into them
+	GetCharacterMovement()->InitialPushForceFactor = 0.f;
+	GetCharacterMovement()->PushForceFactor = 0.f;
+	GetCharacterMovement()->TouchForceFactor = 0.f;
+	GetCharacterMovement()->RepulsionForce = 0.f;
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
 void AProyecto3_BakugansCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
+		// Sprinting: run while held, walk again on release
+		if (SprintAction)
+		{
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::BeginRunning);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AProyecto3_BakugansCharacter::StopRunning);
+		}
+		else
+		{
+			UE_LOG(LogProyecto3_Bakugans, Warning, TEXT("'%s' has no SprintAction assigned"), *GetNameSafe(this));
+		}
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -65,6 +91,16 @@ void AProyecto3_BakugansCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProyecto3_BakugansCharacter::Look);
+
+		// Interacting
+		if (InteractAction)
+		{
+			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AProyecto3_BakugansCharacter::DoInteract);
+		}
+		else
+		{
+			UE_LOG(LogProyecto3_Bakugans, Warning, TEXT("'%s' has no InteractAction assigned"), *GetNameSafe(this));
+		}
 	}
 	else
 	{
@@ -130,4 +166,54 @@ void AProyecto3_BakugansCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void AProyecto3_BakugansCharacter::DoInteract()
+{
+	InteractionComponent->TryInteract();
+}
+
+void AProyecto3_BakugansCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (GameDebug::IsOn(CVarDebugMovement))
+	{
+		DrawMovementDebug();
+	}
+	InteractionComponent->DrawDebug();
+}
+
+void AProyecto3_BakugansCharacter::DrawMovementDebug() const
+{
+	const UWorld* World = GetWorld();
+	const FVector Location = GetActorLocation();
+	const FVector Velocity = GetVelocity();
+
+	// Capsule, facing (blue) and velocity (green)
+	DrawDebugCapsule(World, Location, GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), GetCapsuleComponent()->GetScaledCapsuleRadius(), GetActorQuat(), FColor::Silver);
+	DrawDebugDirectionalArrow(World, Location, Location + GetActorForwardVector() * 100.f, 20.f, FColor::Blue);
+	DrawDebugDirectionalArrow(World, Location, Location + Velocity * 0.25f, 20.f, FColor::Green);
+
+	GameDebug::Print("Movement", FString::Printf(TEXT("%.0f / %.0f cm/s | %s"), Velocity.Size2D(), GetCharacterMovement()->MaxWalkSpeed, *GetCharacterMovement()->GetMovementName()), FColor::Green, 0.1f, 0.2f);
+}
+
+void AProyecto3_BakugansCharacter::BeginRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxRunSpeed;
+
+	if (GameDebug::IsOn(CVarDebugMovement))
+	{
+		GameDebug::Print("Sprint", FString::Printf(TEXT("Sprint ON: max %.0f cm/s"), MaxRunSpeed), FColor::Yellow);
+	}
+}
+
+void AProyecto3_BakugansCharacter::StopRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
+	if (GameDebug::IsOn(CVarDebugMovement))
+	{
+		GameDebug::Print("Sprint", FString::Printf(TEXT("Sprint OFF: max %.0f cm/s"), WalkSpeed), FColor::Yellow);
+	}
 }

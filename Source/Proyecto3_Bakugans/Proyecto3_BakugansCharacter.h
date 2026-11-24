@@ -10,6 +10,8 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class UInteractionComponent;
+class UHealthComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -49,12 +51,44 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	/** Interact Input Action */
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* InteractAction;
+
+	/** Finds what is in front and interacts with it */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInteractionComponent> InteractionComponent;
+
+	/** Hearts of the player; the HUD shows them */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UHealthComponent> HealthComponent;
+
+	/** Sprint Input Action (hold to run) */
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* SprintAction;
+
+	/** Ground speed while walking */
+	UPROPERTY(EditAnywhere, Category="Movement", meta = (ClampMin = "0", Units = "cm/s"))
+	float WalkSpeed = 500.f;
+
+	/** Ground speed while the sprint button is held */
+	UPROPERTY(EditAnywhere, Category="Movement", meta = (ClampMin = "0", Units = "cm/s"))
+	float MaxRunSpeed = 800.f;
+
+	/** Switch to the running speed (sprint pressed) */
+	void BeginRunning();
+
+	/** Back to the walking speed (sprint released) */
+	void StopRunning();
+
 public:
 
 	/** Constructor */
 	AProyecto3_BakugansCharacter();	
 
 protected:
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -66,6 +100,9 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	/** Capsule, facing and velocity, while game.Debug.Movement is on */
+	void DrawMovementDebug() const;
 
 public:
 
@@ -85,6 +122,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
 
+	/** Handles interact inputs from either controls or UI interfaces */
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoInteract();
+
 public:
 
 	/** Returns CameraBoom subobject **/
@@ -92,5 +133,8 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	/** Returns the player's hearts (attacks reach them through ApplyDamage; this is for reading or reacting) **/
+	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 };
 
